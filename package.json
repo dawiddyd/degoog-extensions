@@ -1,0 +1,15 @@
+{
+  "name": "dawiddyd-degoog-extensions",
+  "description": "Plugins and themes for degoog search.",
+  "author": "dawiddyd",
+  "plugins": [
+    {
+      "path": "plugins/ai-mode",
+      "name": "AI Mode",
+      "description": "AI-powered overview of search results using OpenAI.",
+      "version": "0.1.0",
+      "type": "tab"
+    }
+  ],
+  "themes": []
+}
