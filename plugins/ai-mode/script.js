@@ -13,7 +13,7 @@
   }
 
   function getContainer() {
-    return document.querySelector('.ai-mode-result');
+    return document.querySelector('.ai-chat-result');
   }
 
   function getQuery() {

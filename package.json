@@ -4,7 +4,7 @@
   "author": "dawiddyd",
   "plugins": [
     {
-      "path": "plugins/ai-mode",
+      "path": "plugins/ai-chat",
       "name": "AI Mode",
       "description": "AI-powered overview of search results using OpenAI.",
       "version": "0.1.0",

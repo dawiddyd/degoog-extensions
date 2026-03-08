@@ -1,16 +1,16 @@
-.ai-mode-result {
+.ai-chat-result {
   padding: 1.5em 0;
   max-width: 652px;
   color: var(--text-primary);
 }
 
-.ai-mode-header {
+.ai-chat-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-light);
 }
 
-.ai-mode-badge {
+.ai-chat-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -23,17 +23,17 @@
   margin-bottom: 0.75rem;
 }
 
-.ai-mode-badge svg {
+.ai-chat-badge svg {
   stroke: currentColor;
 }
 
-.ai-mode-query {
+.ai-chat-query {
   margin: 0;
   font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
-.ai-mode-query strong {
+.ai-chat-query strong {
   color: var(--text-primary);
   font-weight: 500;
 }

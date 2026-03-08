@@ -75,7 +75,7 @@ function formatAIResponse(content, results) {
 }
 
 export const tab = {
-  id: "ai-mode",
+  id: "ai-chat",
   name: "AI Mode",
   position: "tab",
   description: "AI-powered overview of search results using OpenAI.",
