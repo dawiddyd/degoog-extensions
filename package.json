@@ -8,7 +8,7 @@
       "name": "AI Mode",
       "description": "AI-powered overview of search results using OpenAI.",
       "version": "0.1.0",
-      "type": "tab"
+      "type": "slot"
     }
   ],
   "themes": []

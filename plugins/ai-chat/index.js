@@ -59,7 +59,7 @@ Please provide a comprehensive overview of this topic based on the search result
     const data = await response.json();
     return data.choices[0]?.message?.content || null;
   } catch (err) {
-    console.error("AI Mode error:", err);
+    console.error("AI Chat error:", err);
     return null;
   }
 }
@@ -73,11 +73,10 @@ function formatAIResponse(content, results) {
   return formatted;
 }
 
-export default {
+export const slot = {
   id: "ai-chat",
-  name: "AI Mode",
-  type: "tab",
-  position: "tab",
+  name: "AI Chat",
+  position: "above-results",
   description: "AI-powered overview of search results using OpenAI.",
 
   settingsSchema: [
@@ -93,14 +92,9 @@ export default {
     {
       key: "model",
       label: "Model",
-      type: "select",
-      options: [
-        { value: "gpt-4o-mini", label: "GPT-4o Mini (Recommended)" },
-        { value: "gpt-4o", label: "GPT-4o" },
-        { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
-      ],
-      default: "gpt-4o-mini",
-      description: "Select the OpenAI model to use for AI responses.",
+      type: "text",
+      placeholder: "gpt-4o-mini",
+      description: "Select the OpenAI model to use for AI responses (gpt-4o-mini, gpt-4o, gpt-3.5-turbo).",
     },
   ],
 
@@ -122,7 +116,7 @@ export default {
   async execute(query, context) {
     if (!apiKey) {
       return {
-        title: "AI Mode",
+        title: "AI Chat",
         html: render({
           content: `
             <div class="ai-error">
@@ -133,12 +127,12 @@ export default {
                 </svg>
               </div>
               <h3 class="ai-error-title">API Key Required</h3>
-              <p class="ai-error-message">Please configure your OpenAI API key in Settings to use AI Mode.</p>
-              <a href="/settings" class="ai-error-link">Go to Settings</a>
+              <p class="ai-error-message">Please configure your OpenAI API key in Settings to use AI Chat.</p>
             </div>
           `,
           searchQuery: esc(query),
           sources: "",
+          sourcesDisplay: "display: none;",
         }),
       };
     }
@@ -148,7 +142,7 @@ export default {
 
     if (!aiResponse) {
       return {
-        title: "AI Mode",
+        title: "AI Chat",
         html: render({
           content: `
             <div class="ai-error">
@@ -164,6 +158,7 @@ export default {
           `,
           searchQuery: esc(query),
           sources: "",
+          sourcesDisplay: "display: none;",
         }),
       };
     }
@@ -180,6 +175,7 @@ export default {
       .join("");
 
     const formattedResponse = formatAIResponse(aiResponse, searchResults);
+    const hasSources = sourcesHtml.length > 0;
 
     return {
       title: "AI Overview",
@@ -187,7 +183,10 @@ export default {
         content: formattedResponse,
         searchQuery: esc(query),
         sources: sourcesHtml,
+        sourcesDisplay: hasSources ? "" : "display: none;",
       }),
     };
   },
 };
+
+export default { slot };
