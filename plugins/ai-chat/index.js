@@ -67,16 +67,16 @@ Please provide a comprehensive overview of this topic based on the search result
 function formatAIResponse(content, results) {
   if (!content) return "";
   
-  // Convert newlines to HTML
   let formatted = esc(content).replace(/\n/g, "<br>");
   formatted = formatted.replace(/\[([0-9]+)\]/g, '<span class="ai-citation" data-index="$1">[$1]</span>');
   
   return formatted;
 }
 
-export const tab = {
+export default {
   id: "ai-chat",
   name: "AI Mode",
+  type: "tab",
   position: "tab",
   description: "AI-powered overview of search results using OpenAI.",
 
@@ -143,7 +143,6 @@ export const tab = {
       };
     }
 
-    // Get search results from context if available
     searchResults = context?.results || [];
     const aiResponse = await fetchAIResponse(query, searchResults);
 
@@ -192,5 +191,3 @@ export const tab = {
     };
   },
 };
-
-export default { tab };
