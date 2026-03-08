@@ -1,15 +1,15 @@
-<div class="command-result ai-chat-result" data-query="{{searchQuery}}">
+<div class="command-result ai-chat-result" data-query="{{searchQuery}}" data-api-key="{{apiKey}}" data-model="{{model}}">
   <div class="ai-chat-header">
     <div class="ai-chat-badge">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
       </svg>
-      <span>AI Overview</span>
+      <span>AI Chat</span>
     </div>
-    <p class="ai-chat-query">Results for: <strong>{{searchQuery}}</strong></p>
+    <p class="ai-chat-query">Ask about: <strong>{{searchQuery}}</strong></p>
   </div>
   
-  <div class="ai-response-content">
+  <div class="ai-chat-messages">
     <div class="ai-message ai-message-assistant">
       <div class="ai-avatar">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -16,6 +16,49 @@ function render(data) {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => data[key] ?? "");
 }
 
+function markdownToHtml(markdown) {
+  if (!markdown) return "";
+  
+  let html = markdown
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  
+  html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  
+  html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<em><strong>$1</strong></em>');
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  html = html.replace(/___(.*?)___/g, '<em><strong>$1</strong></em>');
+  html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+  html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+  
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  
+  html = html.replace(/```([\s\S]*?)```/g, function(match, code) {
+    return '<pre><code>' + code.trim() + '</code></pre>';
+  });
+  
+  html = html.replace(/^\s*[-*+]\s+(.*$)/gim, '<li>$1</li>');
+  html = html.replace(/(\u003cli>.*\u003c\/li>\n?)+/g, '<ul>$1</ul>');
+  
+  html = html.replace(/^\s*\d+\.\s+(.*$)/gim, '<li>$1</li>');
+  html = html.replace(/(\u003cli>.*\u003c\/li>\n?)+/gs, function(match) {
+    if (match.includes('<ul>')) return match;
+    return '<ol>' + match + '</ol>';
+  });
+  
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  
+  html = html.replace(/\[([0-9]+)\]/g, '<span class="ai-citation" data-index="$1">[$1]</span>');
+  
+  html = html.replace(/\n/g, '<br>');
+  
+  return html;
+}
+
 async function fetchAIResponse(query, contextResults) {
   if (!apiKey) return null;
 
@@ -24,7 +67,7 @@ async function fetchAIResponse(query, contextResults) {
     .map((r, i) => `[${i + 1}] ${r.title}\n${r.snippet || r.description || ""}`)
     .join("\n\n");
 
-  const systemPrompt = `You are a helpful AI assistant integrated into a search engine. Your task is to provide comprehensive, accurate answers based on the search context provided. Always cite your sources using [1], [2], etc. Be concise but thorough. If you're uncertain about something, say so.`;
+  const systemPrompt = `You are a helpful AI assistant integrated into a search engine. Your task is to provide comprehensive, accurate answers based on the search context provided. Always cite your sources using [1], [2], etc. Use markdown formatting (bold, lists, code blocks) where appropriate. Be concise but thorough. If you're uncertain about something, say so.`;
 
   const userPrompt = `Search query: "${query}"
 
@@ -64,20 +107,11 @@ Please provide a comprehensive overview of this topic based on the search result
   }
 }
 
-function formatAIResponse(content, results) {
-  if (!content) return "";
-  
-  let formatted = esc(content).replace(/\n/g, "<br>");
-  formatted = formatted.replace(/\[([0-9]+)\]/g, '<span class="ai-citation" data-index="$1">[$1]</span>');
-  
-  return formatted;
-}
-
 export const slot = {
   id: "ai-chat",
   name: "AI Chat",
   position: "above-results",
-  description: "AI-powered overview of search results using OpenAI.",
+  description: "AI-powered chat interface for search results using OpenAI.",
 
   settingsSchema: [
     {
@@ -118,19 +152,10 @@ export const slot = {
       return {
         title: "AI Chat",
         html: render({
-          content: `
-            <div class="ai-error">
-              <div class="ai-error-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 8v4M12 16h.01"/>
-                </svg>
-              </div>
-              <h3 class="ai-error-title">API Key Required</h3>
-              <p class="ai-error-message">Please configure your OpenAI API key in Settings to use AI Chat.</p>
-            </div>
-          `,
+          content: markdownToHtml("Hello! I'm your AI assistant. Please configure your OpenAI API key in Settings to start chatting."),
           searchQuery: esc(query),
+          apiKey: "",
+          model: model,
           sources: "",
           sourcesDisplay: "display: none;",
         }),
@@ -144,19 +169,10 @@ export const slot = {
       return {
         title: "AI Chat",
         html: render({
-          content: `
-            <div class="ai-error">
-              <div class="ai-error-icon">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M12 8v4M12 16h.01"/>
-                </svg>
-              </div>
-              <h3 class="ai-error-title">Unable to Generate Response</h3>
-              <p class="ai-error-message">There was an error generating the AI response. Please check your API key and try again.</p>
-            </div>
-          `,
+          content: markdownToHtml("Sorry, I couldn't generate a response. Please check your API key and try again."),
           searchQuery: esc(query),
+          apiKey: apiKey ? "__SET__" : "",
+          model: model,
           sources: "",
           sourcesDisplay: "display: none;",
         }),
@@ -174,14 +190,16 @@ export const slot = {
       `)
       .join("");
 
-    const formattedResponse = formatAIResponse(aiResponse, searchResults);
+    const formattedResponse = markdownToHtml(aiResponse);
     const hasSources = sourcesHtml.length > 0;
 
     return {
-      title: "AI Overview",
+      title: "AI Chat",
       html: render({
         content: formattedResponse,
         searchQuery: esc(query),
+        apiKey: "__SET__",
+        model: model,
         sources: sourcesHtml,
         sourcesDisplay: hasSources ? "" : "display: none;",
       }),
