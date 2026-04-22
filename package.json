@@ -4,11 +4,11 @@
   "author": "dawiddyd",
   "plugins": [
     {
-      "path": "plugins/ai-chat",
-      "name": "AI Mode",
-      "description": "AI-powered overview of search results using OpenAI.",
-      "version": "0.1.0",
-      "type": "slot"
+      "path": "plugins/word-of-the-day",
+      "name": "Word of the Day",
+      "description": "Provides a server-side RSS proxy for the Word of the Day theme, fetching today's word from Wordsmith.org.",
+      "version": "1.0.0",
+      "type": "route"
     }
   ],
   "themes": []
