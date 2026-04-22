@@ -9,7 +9,14 @@
       "name": "Word of the Day",
       "description": "Provides a server-side RSS proxy for the Word of the Day theme, fetching today's word from Wordsmith.org.",
       "version": "1.1.1",
-      "type": "route"
+      "type": "command"
+    },
+    {
+      "path": "plugins/dino",
+      "name": "Dino",
+      "description": "Play the Chrome dino game directly from search. Type !dino to launch.",
+      "version": "1.0.0",
+      "type": "command"
     }
   ],
   "themes": []
