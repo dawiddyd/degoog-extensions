@@ -1,47 +1,26 @@
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
+import { readFile, writeFile } from "fs/promises";
+import { join } from "path";
 
 const RSS_URL = "https://wordsmith.org/awad/rss1.xml";
 const FETCH_TIMEOUT_MS = 5000;
+const CACHE_FILENAME = "wotd-cache.json";
 
 let _cache = null;
 let _cacheDate = null;
+let _pluginDir = null;
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
 function _todayKey() {
   return new Date().toISOString().slice(0, 10);
 }
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
 function _stripCdata(s) {
   return s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
 }
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
 function _stripHtml(s) {
   return s.replace(/<[^>]+>/g, " ");
 }
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
 function _decodeEntities(s) {
   return s
     .replace(/&amp;/g, "&")
@@ -53,11 +32,6 @@ function _decodeEntities(s) {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
 function _parseRSS(xml) {
   const itemMatch = xml.match(/<item[^>]*>([\s\S]*?)<\/item>/);
   if (!itemMatch) return null;
@@ -78,15 +52,37 @@ function _parseRSS(xml) {
   return { word, definition };
 }
 
-/**
- * @todo fccview is telling you to review this AI generated code
- * and make sure it's up to standards, reusable, modular and consistent with
- * the rest of the codebase.
- */
+async function _readFileCache() {
+  if (!_pluginDir) return null;
+  try {
+    const raw = await readFile(join(_pluginDir, CACHE_FILENAME), "utf-8");
+    const entry = JSON.parse(raw);
+    if (entry?.date === _todayKey()) return entry.data;
+  } catch {}
+  return null;
+}
+
+async function _writeFileCache(data) {
+  if (!_pluginDir) return;
+  try {
+    await writeFile(
+      join(_pluginDir, CACHE_FILENAME),
+      JSON.stringify({ date: _todayKey(), data }),
+      "utf-8"
+    );
+  } catch {}
+}
+
 async function _getWordData() {
   const today = _todayKey();
-  // fccview is onto you!
   if (_cache && _cacheDate === today) return _cache;
+
+  const fileData = await _readFileCache();
+  if (fileData) {
+    _cache = fileData;
+    _cacheDate = today;
+    return fileData;
+  }
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -101,6 +97,7 @@ async function _getWordData() {
     if (!data) throw new Error("Failed to parse RSS feed");
     _cache = data;
     _cacheDate = today;
+    await _writeFileCache(data);
     return data;
   } finally {
     clearTimeout(timeout);
@@ -111,6 +108,10 @@ export default {
   name: "Word of the Day",
   trigger: "wotd",
   description: "Show today's word of the day from Wordsmith.org.",
+
+  init(ctx) {
+    _pluginDir = ctx.dir;
+  },
 
   async execute() {
     const data = await _getWordData();
