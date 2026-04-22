@@ -1,6 +1,7 @@
 {
   "name": "dawiddyd-degoog-extensions",
   "description": "Plugins and themes for degoog search.",
+  "repo-image": "https://avatars.githubusercontent.com/u/33759204?s=512",
   "author": "dawiddyd",
   "plugins": [
     {
