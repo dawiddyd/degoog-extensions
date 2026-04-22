@@ -8,7 +8,7 @@
       "path": "plugins/word-of-the-day",
       "name": "Word of the Day",
       "description": "Provides a server-side RSS proxy for the Word of the Day theme, fetching today's word from Wordsmith.org.",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "type": "route"
     }
   ],
