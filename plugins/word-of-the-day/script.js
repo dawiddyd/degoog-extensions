@@ -12,7 +12,7 @@ function _buildLogo(word, definition) {
   h1.className = "logo";
   word.split("").forEach(function (char, i) {
     var span = document.createElement("span");
-    // fccview is onto you!
+    
     span.className = _LOGO_CLASSES[i % _LOGO_CLASSES.length];
     span.textContent = char;
     h1.appendChild(span);
@@ -38,12 +38,39 @@ function _buildLogo(word, definition) {
   return wrap;
 }
 
+var _CACHE_KEY = "wotd-cache";
+
+function _todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function _readCache() {
+  try {
+    var raw = localStorage.getItem(_CACHE_KEY);
+    if (!raw) return null;
+    var entry = JSON.parse(raw);
+    
+    if (entry && entry.date === _todayKey()) return entry.data;
+  } catch {}
+  return null;
+}
+
+function _writeCache(data) {
+  try {
+    localStorage.setItem(_CACHE_KEY, JSON.stringify({ date: _todayKey(), data: data }));
+  } catch {}
+}
+
 async function _applyWotd(container) {
   try {
-    var res = await fetch(_FEED_URL);
-    if (!res.ok) return;
-    var data = await res.json();
-    if (!data || !data.word) return;
+    var data = _readCache();
+    if (!data) {
+      var res = await fetch(_FEED_URL);
+      if (!res.ok) return;
+      data = await res.json();
+      if (!data || !data.word) return;
+      _writeCache(data);
+    }
     container.innerHTML = "";
     container.appendChild(_buildLogo(data.word, data.definition));
   } catch {
