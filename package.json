@@ -17,6 +17,13 @@
       "description": "Play the Chrome dino game directly from search. Type !dino to launch.",
       "version": "1.0.0",
       "type": "command"
+    },
+    {
+      "path": "plugins/rybbit-analytics",
+      "name": "Rybbit Analytics",
+      "description": "Track search events using Rybbit analytics. Supports self-hosted instances.",
+      "version": "1.0.0",
+      "type": "interceptor"
     }
   ],
   "themes": []
