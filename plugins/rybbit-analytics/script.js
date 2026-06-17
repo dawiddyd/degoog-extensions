@@ -9,9 +9,7 @@ async function _init() {
     return;
   }
 
-  // Override document.title so any script reading it (including Rybbit) always
-  // sees "degoog" instead of the search query. The original setter is preserved
-  // so the browser tab still updates normally.
+  // Any JS reading document.title (including Rybbit) always sees "degoog".
   try {
     var _origDesc = Object.getOwnPropertyDescriptor(Document.prototype, "title");
     Object.defineProperty(Document.prototype, "title", {
@@ -22,10 +20,33 @@ async function _init() {
     });
   } catch {}
 
+  // Intercept Rybbit's tracking requests and strip query params from any URL
+  // fields in the payload before they reach the Rybbit server.
+  var _origFetch = window.fetch;
+  window.fetch = function (resource, init) {
+    var reqUrl = typeof resource === "string" ? resource : (resource && resource.url);
+    if (reqUrl && reqUrl.includes("/api/track") && init && init.body) {
+      try {
+        var payload = JSON.parse(init.body);
+        Object.keys(payload).forEach(function (key) {
+          if (typeof payload[key] === "string" && payload[key].includes("?")) {
+            try {
+              var parsed = new URL(payload[key], window.location.origin);
+              parsed.search = "";
+              payload[key] = parsed.pathname;
+            } catch {}
+          }
+        });
+        init = Object.assign({}, init, { body: JSON.stringify(payload) });
+      } catch {}
+    }
+    return _origFetch.call(this, resource, init);
+  };
+
   var script = document.createElement("script");
   script.src = config.rybbitUrl + "/api/script.js";
   script.setAttribute("data-site-id", config.siteId);
-  script.setAttribute("data-mask-patterns", JSON.stringify(["/search/**"]));
+  script.setAttribute("data-mask-patterns", JSON.stringify(["/search"]));
   script.defer = true;
   document.head.appendChild(script);
 }
@@ -35,3 +56,4 @@ if (document.readyState === "loading") {
 } else {
   void _init();
 }
+
