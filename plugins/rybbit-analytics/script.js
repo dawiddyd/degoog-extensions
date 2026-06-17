@@ -1,5 +1,28 @@
 var _rybbitReady = false;
 
+var _INTERACTIVE = [
+  "button",
+  "a",
+  '[role="button"]',
+  'input[type="submit"]',
+  'input[type="button"]',
+  'label[for]',
+  'select',
+  '.results-tab',
+  '.settings-nav-item',
+  '.tools-option',
+  '.tools-menu-item',
+  '.store-btn-install',
+  '.store-btn-uninstall',
+  '.store-btn-update',
+  '.store-btn-delete',
+  '.store-btn-add',
+  '.store-btn-refresh',
+  '.engine-retry-link',
+  '.ext-card-toggle',
+  '.degoog-tab',
+].join(", ");
+
 function _track(name, props) {
   if (!_rybbitReady || !window.rybbit || typeof window.rybbit.event !== "function") return;
   window.rybbit.event(name, props || {});
@@ -10,44 +33,23 @@ function _setupTracking() {
     var el = e.target instanceof Element ? e.target : null;
     if (!el) return;
 
-    var tab = el.closest(".results-tab");
-    if (tab && tab.dataset.type) {
-      _track("tab_switch", { tab: tab.dataset.type });
-      return;
-    }
+    var hit = el.closest(_INTERACTIVE);
+    if (!hit) return;
 
-    var retry = el.closest(".engine-retry-link");
-    if (retry && retry.dataset.engine) {
-      _track("engine_retry", { engine: retry.dataset.engine });
-      return;
-    }
+    var label = (
+      hit.getAttribute("aria-label") ||
+      hit.getAttribute("title") ||
+      (hit.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60)
+    ) || hit.tagName.toLowerCase();
 
-    var settingsNav = el.closest(".settings-nav-item");
-    if (settingsNav && settingsNav.dataset.tab) {
-      _track("settings_tab", { tab: settingsNav.dataset.tab });
-      return;
-    }
+    var props = { label: label };
+    if (hit.dataset.type)   props.type   = hit.dataset.type;
+    if (hit.dataset.tab)    props.tab    = hit.dataset.tab;
+    if (hit.dataset.engine) props.engine = hit.dataset.engine;
+    if (hit.dataset.time)   props.time   = hit.dataset.time;
+    if (hit.dataset.menu)   props.menu   = hit.dataset.menu;
 
-    var timeOpt = el.closest(".tools-option");
-    if (timeOpt && timeOpt.dataset.time) {
-      _track("time_filter", { filter: timeOpt.dataset.time });
-      return;
-    }
-
-    if (el.closest(".store-btn-install")) {
-      _track("store_install", {});
-      return;
-    }
-
-    if (el.closest(".store-btn-uninstall")) {
-      _track("store_uninstall", {});
-      return;
-    }
-
-    if (el.closest(".store-btn-update")) {
-      _track("store_update", {});
-      return;
-    }
+    _track("click", props);
   }, true);
 }
 
