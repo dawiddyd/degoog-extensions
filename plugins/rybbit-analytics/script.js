@@ -9,24 +9,22 @@ async function _init() {
     return;
   }
 
-  // Any JS reading document.title (including Rybbit) will always see "degoog",
-  // while direct writes still update the <title> element so the browser tab is unaffected.
-  var _titleEl = document.querySelector("title");
-  var _origTextContent = Object.getOwnPropertyDescriptor(Node.prototype, "textContent");
-  Object.defineProperty(document, "title", {
-    get: function () { return "degoog"; },
-    set: function (val) {
-      if (_titleEl && _origTextContent && _origTextContent.set) {
-        _origTextContent.set.call(_titleEl, val);
-      }
-    },
-    configurable: true,
-  });
+  // Override document.title so any script reading it (including Rybbit) always
+  // sees "degoog" instead of the search query. The original setter is preserved
+  // so the browser tab still updates normally.
+  try {
+    var _origDesc = Object.getOwnPropertyDescriptor(Document.prototype, "title");
+    Object.defineProperty(Document.prototype, "title", {
+      get: function () { return "degoog"; },
+      set: _origDesc && _origDesc.set,
+      configurable: true,
+      enumerable: _origDesc ? _origDesc.enumerable : true,
+    });
+  } catch {}
 
   var script = document.createElement("script");
   script.src = config.rybbitUrl + "/api/script.js";
   script.setAttribute("data-site-id", config.siteId);
-  script.setAttribute("data-mask-patterns", JSON.stringify(["/search"]));
   script.defer = true;
   document.head.appendChild(script);
 }
