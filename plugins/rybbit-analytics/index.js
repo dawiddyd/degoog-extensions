@@ -31,7 +31,14 @@ function _sendEvent(trackUrl, siteId, query, fetchFn) {
     body: payload,
     signal: controller.signal,
   })
-    .catch(() => {})
+    .then((res) => {
+      if (!res.ok) {
+        console.error(`[rybbit-analytics] tracking request failed: HTTP ${res.status} from ${trackUrl}`);
+      }
+    })
+    .catch((err) => {
+      console.error(`[rybbit-analytics] tracking request error:`, err?.message ?? err);
+    })
     .finally(() => clearTimeout(timer));
 }
 
