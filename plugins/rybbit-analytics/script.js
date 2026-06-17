@@ -25,7 +25,7 @@ async function _init() {
   var script = document.createElement("script");
   script.src = config.rybbitUrl + "/api/script.js";
   script.setAttribute("data-site-id", config.siteId);
-  script.setAttribute("data-mask-patterns", JSON.stringify(["/search"]));
+  script.setAttribute("data-mask-patterns", JSON.stringify(["/search/**"]));
   script.defer = true;
   document.head.appendChild(script);
 }
