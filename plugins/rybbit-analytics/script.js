@@ -1,5 +1,3 @@
-var _rybbitLoaded = false;
-
 async function _init() {
   var config;
   try {
@@ -15,24 +13,7 @@ async function _init() {
   script.src = config.rybbitUrl + "/api/script.js";
   script.setAttribute("data-site-id", config.siteId);
   script.defer = true;
-  script.onload = function () {
-    _rybbitLoaded = true;
-  };
   document.head.appendChild(script);
-
-  var _origPushState = history.pushState.bind(history);
-  history.pushState = function (state, title, url) {
-    _origPushState(state, title, url);
-    if (_rybbitLoaded && window.rybbit) {
-      window.rybbit.trackPageview();
-    }
-  };
-
-  window.addEventListener("popstate", function () {
-    if (_rybbitLoaded && window.rybbit) {
-      window.rybbit.trackPageview();
-    }
-  });
 }
 
 if (document.readyState === "loading") {
