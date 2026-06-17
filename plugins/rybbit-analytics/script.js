@@ -28,15 +28,7 @@ async function _init() {
     if (reqUrl && reqUrl.includes("/api/track") && init && init.body) {
       try {
         var payload = JSON.parse(init.body);
-        Object.keys(payload).forEach(function (key) {
-          if (typeof payload[key] === "string" && payload[key].includes("?")) {
-            try {
-              var parsed = new URL(payload[key], window.location.origin);
-              parsed.search = "";
-              payload[key] = parsed.pathname;
-            } catch {}
-          }
-        });
+        payload.querystring = "";
         init = Object.assign({}, init, { body: JSON.stringify(payload) });
       } catch {}
     }
