@@ -22,7 +22,7 @@
       "path": "plugins/rybbit-analytics",
       "name": "Rybbit Analytics",
       "description": "Track search events using Rybbit analytics. Supports self-hosted instances.",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "type": "interceptor"
     }
   ],
